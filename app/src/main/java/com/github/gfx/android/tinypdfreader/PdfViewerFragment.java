@@ -19,6 +19,8 @@ public class PdfViewerFragment extends Fragment {
 
     private static final String kPdfFile = "pdf_file";
 
+    private boolean reversed = false;
+
     private PdfRenderer pdfRenderer;
 
     private FragmentPdfViewerBinding binding;
@@ -54,6 +56,7 @@ public class PdfViewerFragment extends Fragment {
         binding = FragmentPdfViewerBinding.inflate(inflater, container, false);
         PagerAdapter adapter = new PdfPagerAdapter(getContext(), pdfRenderer);
         binding.viewPager.setAdapter(adapter);
+        binding.viewPager.setReversed(reversed);
         return binding.getRoot();
     }
 

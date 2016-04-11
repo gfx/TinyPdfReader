@@ -8,7 +8,7 @@
             android:layout_height="match_parent"
             android:background="@android:color/white"
             >
-        <com.github.gfx.android.tinypdfreader.PdfViewPager
+        <com.github.gfx.android.tinypdfreader.ReversibleViewPager
                 android:id="@+id/viewPager"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
