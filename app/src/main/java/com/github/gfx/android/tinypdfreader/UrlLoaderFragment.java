@@ -6,9 +6,11 @@ import com.github.gfx.android.tinypdfreader.databinding.FragmentLoadingBinding;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.IdRes;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import hugo.weaving.DebugLog;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
@@ -37,6 +40,7 @@ public class UrlLoaderFragment extends Fragment {
     private static final int MAX = 10_000;
 
     Uri inputUri;
+
     File outputFile;
 
     FragmentLoadingBinding binding;
@@ -71,11 +75,11 @@ public class UrlLoaderFragment extends Fragment {
         outputFile = (File) getArguments().getSerializable(kOutputFile);
     }
 
+    @DebugLog
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentLoadingBinding.inflate(inflater, container, false);
         binding.progress.setMax(MAX);
-
 
         final OutputStream outputStream;
         try {
@@ -103,6 +107,7 @@ public class UrlLoaderFragment extends Fragment {
                         binding.getRoot().post(new Runnable() {
                             @Override
                             public void run() {
+                                dismiss();
                                 resultListener.onLoadFailure(e);
                             }
                         });
@@ -132,6 +137,7 @@ public class UrlLoaderFragment extends Fragment {
                         binding.getRoot().post(new Runnable() {
                             @Override
                             public void run() {
+                                dismiss();
                                 resultListener.onLoadSuccess(response);
                             }
                         });
@@ -141,7 +147,20 @@ public class UrlLoaderFragment extends Fragment {
         return binding.getRoot();
     }
 
+    public void show(FragmentManager fragmentManager, @IdRes int viewId) {
+        fragmentManager.beginTransaction()
+                .add(viewId, this)
+                .commit();
+    }
+
+    void dismiss() {
+        getFragmentManager().beginTransaction()
+                .remove(this)
+                .commit();
+    }
+
     public interface ResultListener {
+
         @UiThread
         void onLoadFailure(IOException exception);
 

@@ -6,6 +6,7 @@ import android.graphics.pdf.PdfRenderer;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.PagerAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,7 +52,8 @@ public class PdfViewerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         binding = FragmentPdfViewerBinding.inflate(inflater, container, false);
-        binding.viewPager.setAdapter(new PdfPagerAdapter(getContext(), pdfRenderer));
+        PagerAdapter adapter = new PdfPagerAdapter(getContext(), pdfRenderer);
+        binding.viewPager.setAdapter(adapter);
         return binding.getRoot();
     }
 

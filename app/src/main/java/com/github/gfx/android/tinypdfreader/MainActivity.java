@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.UiThread;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,9 +13,9 @@ import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity implements UrlLoaderFragment.ResultListener {
 
-    File pdfFile;
+    private static final String TAG = MainActivity.class.getSimpleName();
 
-    UrlLoaderFragment urlLoaderFragment;
+    File pdfFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,40 +23,28 @@ public class MainActivity extends AppCompatActivity implements UrlLoaderFragment
         setContentView(R.layout.activity_main);
 
         Uri uri = Uri.parse("http://www.jssec.org/dl/android_securecoding.pdf");
-        //String url = "https://github.com/googlesamples/android-PdfRendererBasic/raw/master/Application/src/main/assets/sample.pdf";
+        //Uri uri = Uri.parse("https://github.com/googlesamples/android-PdfRendererBasic/raw/master/Application/src/main/assets/sample.pdf");
         pdfFile = new File(getCacheDir(), "file.pdf");
 
         if (!pdfFile.exists()) {
-            urlLoaderFragment = UrlLoaderFragment.newInstance(uri, pdfFile);
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .add(R.id.content, urlLoaderFragment)
-                    .commit();
-
+            UrlLoaderFragment urlLoaderFragment = UrlLoaderFragment.newInstance(uri, pdfFile);
+            urlLoaderFragment.show(getSupportFragmentManager(), R.id.content);
         } else {
             showPdf(pdfFile);
         }
     }
 
-    void dismissUrlLoaderFragment() {
-        getSupportFragmentManager().beginTransaction()
-                .remove(urlLoaderFragment)
-                .commit();
-    }
-
     @UiThread
     @Override
     public void onLoadFailure(IOException exception) {
-        dismissUrlLoaderFragment();
+        Log.wtf(TAG, exception);
     }
 
     @UiThread
     @Override
     public void onLoadSuccess(Response response) {
-        dismissUrlLoaderFragment();
         showPdf(pdfFile);
     }
-
 
     @UiThread
     void showPdf(File pdfFile) {
