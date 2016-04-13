@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -27,8 +26,6 @@ public class PdfViewerFragment extends Fragment {
     private PdfRenderer pdfRenderer;
 
     private FragmentPdfViewerBinding binding;
-
-    private MotionEvent actionDownEvent;
 
     public PdfViewerFragment() {
         // Required empty public constructor
