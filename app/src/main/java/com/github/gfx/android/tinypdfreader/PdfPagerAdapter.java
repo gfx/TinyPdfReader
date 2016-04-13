@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import uk.co.senab.photoview.PhotoView;
+import uk.co.senab.photoview.PhotoViewAttacher;
 
 public class PdfPagerAdapter extends PagerAdapter {
 
@@ -19,6 +20,8 @@ public class PdfPagerAdapter extends PagerAdapter {
     final Context context;
 
     final PdfRenderer pdfRenderer;
+
+    private PhotoViewAttacher.OnViewTapListener onViewTapListener;
 
     public PdfPagerAdapter(Context context, PdfRenderer pdfRenderer) {
         this.context = context;
@@ -35,6 +38,8 @@ public class PdfPagerAdapter extends PagerAdapter {
         long t0 = System.currentTimeMillis();
 
         PhotoView imageView = new PhotoView(context);
+        imageView.setOnViewTapListener(onViewTapListener);
+        imageView.setZoomTransitionDuration(200);
 
         ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
@@ -56,6 +61,10 @@ public class PdfPagerAdapter extends PagerAdapter {
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
         container.removeView((View)object);
+    }
+
+    public void setOnViewTapListener(PhotoViewAttacher.OnViewTapListener onViewTapListener) {
+        this.onViewTapListener = onViewTapListener;
     }
 
     private static class LoadBitmapTask extends AsyncTask<Integer, Void, Bitmap> {
