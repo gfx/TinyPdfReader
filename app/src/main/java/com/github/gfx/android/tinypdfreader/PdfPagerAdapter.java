@@ -1,7 +1,9 @@
 package com.github.gfx.android.tinypdfreader;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.graphics.pdf.PdfRenderer;
 import android.os.AsyncTask;
 import android.support.v4.view.PagerAdapter;
@@ -10,7 +12,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import hugo.weaving.DebugLog;
 import uk.co.senab.photoview.PhotoView;
+import uk.co.senab.photoview.PhotoViewAttacher;
 
 public class PdfPagerAdapter extends PagerAdapter {
 
@@ -20,32 +24,51 @@ public class PdfPagerAdapter extends PagerAdapter {
 
     final PdfRenderer pdfRenderer;
 
+    final int count;
+
+    final boolean portrait;
+
+    private PhotoViewAttacher.OnViewTapListener onViewTapListener;
+
     public PdfPagerAdapter(Context context, PdfRenderer pdfRenderer) {
         this.context = context;
         this.pdfRenderer = pdfRenderer;
+        this.portrait = isPortrait();
+        if (portrait) {
+            this.count = pdfRenderer.getPageCount();
+        } else {
+            this.count = (int)Math.ceil(pdfRenderer.getPageCount() / 2.0f);
+        }
+    }
+
+    @DebugLog
+    boolean isPortrait() {
+        return context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
     }
 
     @Override
     public int getCount() {
-        return pdfRenderer.getPageCount();
+        return count;
     }
 
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         long t0 = System.currentTimeMillis();
 
-        PhotoView imageView = new PhotoView(context);
+        PhotoView photoView = new PhotoView(context);
+        photoView.setOnViewTapListener(onViewTapListener);
 
-        ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
-        );
-        imageView.setLayoutParams(params);
-        container.addView(imageView);
-
-        new LoadBitmapTask(pdfRenderer, imageView).execute(position);
-
+        if (portrait) {
+            new LoadBitmapTask(pdfRenderer, photoView).execute(position);
+        } else {
+            int pageLeft = position * 2;
+            int pageRight = pageLeft + 1;
+            new LoadBitmapTask(pdfRenderer, photoView).execute(pageLeft, pageRight);
+        }
+        container.addView(photoView);
         Log.d(TAG, "instantiateItem: " + position + " in " + (System.currentTimeMillis() - t0) + "ms");
-        return imageView;
+
+        return photoView;
     }
 
     @Override
@@ -56,6 +79,10 @@ public class PdfPagerAdapter extends PagerAdapter {
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
         container.removeView((View)object);
+    }
+
+    public void setOnViewTapListener(PhotoViewAttacher.OnViewTapListener onViewTapListener) {
+        this.onViewTapListener = onViewTapListener;
     }
 
     private static class LoadBitmapTask extends AsyncTask<Integer, Void, Bitmap> {
@@ -71,13 +98,23 @@ public class PdfPagerAdapter extends PagerAdapter {
 
         @Override
         protected Bitmap doInBackground(Integer... params) {
-            int position = params[0];
+            Bitmap bitmap = null;
 
-            try(PdfRenderer.Page page = pdfRenderer.openPage(position)) {
-                Bitmap bitmap = Bitmap.createBitmap(page.getWidth() * 2, page.getHeight() * 2, Bitmap.Config.ARGB_8888);
-                page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
-                return bitmap;
+            for (int i = 0; i < params.length; i++) {
+                int position = params[i];
+                try(PdfRenderer.Page page = pdfRenderer.openPage(position)) {
+                    int w = page.getWidth() * 2;
+                    int h = page.getHeight() * 2;
+
+                    if (bitmap == null) {
+                        bitmap = Bitmap.createBitmap(w * params.length, h, Bitmap.Config.ARGB_8888);
+                    }
+                    int offsetX = i * w;
+                    Rect rect = new Rect(offsetX, 0, offsetX + w, h);
+                    page.render(bitmap, rect, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+                }
             }
+            return bitmap;
         }
 
         @Override
