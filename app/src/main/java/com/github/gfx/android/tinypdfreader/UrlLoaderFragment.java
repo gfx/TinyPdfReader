@@ -162,7 +162,7 @@ public class UrlLoaderFragment extends Fragment {
 
     public void show(FragmentManager fragmentManager, @IdRes int viewId) {
         fragmentManager.beginTransaction()
-                .add(viewId, this)
+                .replace(viewId, this)
                 .commit();
     }
 

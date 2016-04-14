@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements UrlLoaderFragment
     @UiThread
     void showPdf(File pdfFile) {
         getSupportFragmentManager().beginTransaction()
-                .add(R.id.content, PdfViewerFragment.newInstance(pdfFile))
+                .replace(R.id.content, PdfViewerFragment.newInstance(pdfFile))
                 .commit();
     }
 }
