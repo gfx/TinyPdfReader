@@ -1,4 +1,4 @@
-package com.github.gfx.android.tinypdfreader;
+package com.github.gfx.android.tinypdfreader.downloader;
 
 import java.io.IOException;
 

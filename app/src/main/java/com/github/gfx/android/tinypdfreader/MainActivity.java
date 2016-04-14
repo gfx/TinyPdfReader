@@ -1,5 +1,7 @@
 package com.github.gfx.android.tinypdfreader;
 
+import com.github.gfx.android.tinypdfreader.downloader.UrlLoaderFragment;
+
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.UiThread;
