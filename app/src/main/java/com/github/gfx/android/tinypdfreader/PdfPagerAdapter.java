@@ -14,7 +14,6 @@ import android.widget.ImageView;
 
 import java.util.Arrays;
 
-import hugo.weaving.DebugLog;
 import uk.co.senab.photoview.PhotoView;
 import uk.co.senab.photoview.PhotoViewAttacher;
 
@@ -47,7 +46,6 @@ public class PdfPagerAdapter extends PagerAdapter {
         return n * 1000 / 60;
     }
 
-    @DebugLog
     boolean isPortrait() {
         return context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
     }

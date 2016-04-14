@@ -2,6 +2,7 @@ package com.github.gfx.android.tinypdfreader;
 
 import com.github.gfx.android.tinypdfreader.databinding.FragmentPdfViewerBinding;
 
+import android.content.res.Configuration;
 import android.graphics.pdf.PdfRenderer;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
@@ -22,11 +23,13 @@ public class PdfViewerFragment extends Fragment {
 
     private static final String kPdfFile = "pdf_file";
 
-    private static final String kPosition = "position";
+    private static final String kPageIndex = "page_index";
 
     private boolean reversed = false;
 
     private File pdfFile;
+
+    private int position;
 
     private PdfRenderer pdfRenderer;
 
@@ -48,6 +51,7 @@ public class PdfViewerFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         pdfRenderer = createPdfRenderer(savedInstanceState != null ? savedInstanceState : getArguments());
     }
 
@@ -66,7 +70,7 @@ public class PdfViewerFragment extends Fragment {
         binding.viewPager.setReversed(reversed);
 
         if (savedInstanceState != null) {
-            binding.viewPager.setCurrentItem(savedInstanceState.getInt(kPosition), false);
+            position = pageIndexToPosition(savedInstanceState.getInt(kPageIndex));
         }
 
         return binding.getRoot();
@@ -78,23 +82,27 @@ public class PdfViewerFragment extends Fragment {
         super.onDestroyView();
     }
 
+    @DebugLog
     @Override
     public void onResume() {
         super.onResume();
         hideSystemUI();
+        binding.viewPager.setCurrentItem(position);
     }
 
+    @DebugLog
     @Override
     public void onPause() {
         showSystemUI();
         super.onPause();
     }
 
+    @DebugLog
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putSerializable(kPdfFile, pdfFile);
-        outState.putInt(kPosition, binding.viewPager.getCurrentItem());
+        outState.putInt(kPageIndex, positionToPageIndex(binding.viewPager.getCurrentItem()));
     }
 
     PdfRenderer createPdfRenderer(Bundle bundle) {
@@ -104,6 +112,36 @@ public class PdfViewerFragment extends Fragment {
             return new PdfRenderer(fd);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    boolean isPortrait() {
+        return getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
+    }
+
+    @DebugLog
+    int positionToPageIndex(int position) {
+        if (!isPortrait()) {
+            return position;
+        } else {
+            if (position == 0) {
+                return 0;
+            } else {
+                return position * 2 - 1;
+            }
+        }
+    }
+
+    @DebugLog
+    int pageIndexToPosition(int pageIndex) {
+        if (isPortrait()) {
+            return pageIndex;
+        } else {
+            if (pageIndex == 0) {
+                return 0;
+            } else {
+                return (pageIndex + 1) / 2;
+            }
         }
     }
 
@@ -126,14 +164,14 @@ public class PdfViewerFragment extends Fragment {
      * <blockquote>
      * If you're building a book reader, news reader, or a magazine, use the IMMERSIVE flag in conjunction with
      * SYSTEM_UI_FLAG_FULLSCREEN and SYSTEM_UI_FLAG_HIDE_NAVIGATION. Because users may want to access the action bar and other
-     * UI controls somewhat frequently, but not be bothered with any UI elements while flipping through content, IMMERSIVE is a
+     * UI controls somewhat frequently, but not be bothered with any UI elements while flipping through content, IMMERSIVE is
+     * a
      * good option for this use case.
      * </blockquote>
      *
      * @see <a href="http://developer.android.com/intl/ja/training/system-ui/immersive.html">Using Immersive Full-Screen
      * Mode</a>
      */
-    @DebugLog
     private void hideSystemUI() {
         binding.getRoot().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -144,7 +182,6 @@ public class PdfViewerFragment extends Fragment {
                         | View.SYSTEM_UI_FLAG_IMMERSIVE);
     }
 
-    @DebugLog
     private void showSystemUI() {
         binding.getRoot().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
