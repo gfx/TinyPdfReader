@@ -5,6 +5,7 @@ import com.github.gfx.android.tinypdfreader.databinding.FragmentPdfViewerBinding
 import android.graphics.pdf.PdfRenderer;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,7 +22,11 @@ public class PdfViewerFragment extends Fragment {
 
     private static final String kPdfFile = "pdf_file";
 
+    private static final String kPosition = "position";
+
     private boolean reversed = false;
+
+    private File pdfFile;
 
     private PdfRenderer pdfRenderer;
 
@@ -39,10 +44,15 @@ public class PdfViewerFragment extends Fragment {
         return fragment;
     }
 
+    @DebugLog
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
-        pdfRenderer = createPdfRenderer();
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        pdfRenderer = createPdfRenderer(savedInstanceState != null ? savedInstanceState : getArguments());
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         PdfPagerAdapter adapter = new PdfPagerAdapter(getContext(), pdfRenderer);
         adapter.setOnViewTapListener(new PhotoViewAttacher.OnViewTapListener() {
             @Override
@@ -54,6 +64,11 @@ public class PdfViewerFragment extends Fragment {
         binding = FragmentPdfViewerBinding.inflate(inflater, container, false);
         binding.viewPager.setAdapter(adapter);
         binding.viewPager.setReversed(reversed);
+
+        if (savedInstanceState != null) {
+            binding.viewPager.setCurrentItem(savedInstanceState.getInt(kPosition), false);
+        }
+
         return binding.getRoot();
     }
 
@@ -75,9 +90,15 @@ public class PdfViewerFragment extends Fragment {
         super.onPause();
     }
 
-    @DebugLog
-    PdfRenderer createPdfRenderer() {
-        File pdfFile = (File) getArguments().getSerializable(kPdfFile);
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable(kPdfFile, pdfFile);
+        outState.putInt(kPosition, binding.viewPager.getCurrentItem());
+    }
+
+    PdfRenderer createPdfRenderer(Bundle bundle) {
+        pdfFile = (File) bundle.getSerializable(kPdfFile);
         try {
             ParcelFileDescriptor fd = ParcelFileDescriptor.open(pdfFile, ParcelFileDescriptor.MODE_READ_ONLY);
             return new PdfRenderer(fd);
