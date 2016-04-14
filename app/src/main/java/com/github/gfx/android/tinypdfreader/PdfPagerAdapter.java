@@ -12,6 +12,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import java.util.Arrays;
+
 import hugo.weaving.DebugLog;
 import uk.co.senab.photoview.PhotoView;
 import uk.co.senab.photoview.PhotoViewAttacher;
@@ -37,8 +39,12 @@ public class PdfPagerAdapter extends PagerAdapter {
         if (portrait) {
             this.count = pdfRenderer.getPageCount();
         } else {
-            this.count = (int)Math.ceil(pdfRenderer.getPageCount() / 2.0f);
+            this.count = (int) Math.ceil(pdfRenderer.getPageCount() / 2.0f);
         }
+    }
+
+    static int toFrame(int n) {
+        return n * 1000 / 60;
     }
 
     @DebugLog
@@ -58,16 +64,16 @@ public class PdfPagerAdapter extends PagerAdapter {
         PhotoView photoView = new PhotoView(context);
         photoView.setOnViewTapListener(onViewTapListener);
 
-        if (portrait) {
+        if (portrait || position == 0) {
             new LoadBitmapTask(pdfRenderer, photoView).execute(position);
         } else {
-            int pageLeft = position * 2;
+            int pageLeft = position * 2 - 1;
             int pageRight = pageLeft + 1;
             new LoadBitmapTask(pdfRenderer, photoView).execute(pageLeft, pageRight);
         }
         container.addView(photoView);
-        Log.d(TAG, "instantiateItem: " + position + " in " + (System.currentTimeMillis() - t0) + "ms");
 
+        Log.d(TAG, "instantiateItem: " + position + " in " + (System.currentTimeMillis() - t0) + "ms");
         return photoView;
     }
 
@@ -78,7 +84,7 @@ public class PdfPagerAdapter extends PagerAdapter {
 
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
-        container.removeView((View)object);
+        container.removeView((View) object);
     }
 
     public void setOnViewTapListener(PhotoViewAttacher.OnViewTapListener onViewTapListener) {
@@ -94,15 +100,18 @@ public class PdfPagerAdapter extends PagerAdapter {
         public LoadBitmapTask(PdfRenderer pdfRenderer, ImageView targetView) {
             this.pdfRenderer = pdfRenderer;
             this.targetView = targetView;
+            targetView.setAlpha(0.0f);
         }
 
         @Override
         protected Bitmap doInBackground(Integer... params) {
+            final long startTime = System.currentTimeMillis();
+
             Bitmap bitmap = null;
 
             for (int i = 0; i < params.length; i++) {
                 int position = params[i];
-                try(PdfRenderer.Page page = pdfRenderer.openPage(position)) {
+                try (PdfRenderer.Page page = pdfRenderer.openPage(position)) {
                     int w = page.getWidth() * 2;
                     int h = page.getHeight() * 2;
 
@@ -114,12 +123,18 @@ public class PdfPagerAdapter extends PagerAdapter {
                     page.render(bitmap, rect, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
                 }
             }
+            Log.d(TAG,
+                    "bitmap for " + Arrays.toString(params) + " loaded in " + (System.currentTimeMillis() - startTime) + "ms");
             return bitmap;
         }
 
         @Override
         protected void onPostExecute(Bitmap bitmap) {
             targetView.setImageBitmap(bitmap);
+            targetView.animate()
+                    .alpha(1.0f)
+                    .setDuration(toFrame(20))
+                    .start();
         }
     }
 }
