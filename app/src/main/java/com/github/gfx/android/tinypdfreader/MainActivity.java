@@ -15,8 +15,6 @@ public class MainActivity extends AppCompatActivity implements UrlLoaderFragment
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    File pdfFile;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,14 +22,9 @@ public class MainActivity extends AppCompatActivity implements UrlLoaderFragment
 
         Uri uri = Uri.parse("http://www.jssec.org/dl/android_securecoding.pdf");
         //Uri uri = Uri.parse("https://github.com/googlesamples/android-PdfRendererBasic/raw/master/Application/src/main/assets/sample.pdf");
-        pdfFile = new File(getCacheDir(), "file.pdf");
 
-        if (!pdfFile.exists()) {
-            UrlLoaderFragment urlLoaderFragment = UrlLoaderFragment.newInstance(uri, pdfFile);
-            urlLoaderFragment.show(getSupportFragmentManager(), R.id.content);
-        } else {
-            showPdf(pdfFile);
-        }
+        UrlLoaderFragment.newInstance(uri)
+                .show(getSupportFragmentManager(),R.id.content);
     }
 
     @UiThread
@@ -42,7 +35,7 @@ public class MainActivity extends AppCompatActivity implements UrlLoaderFragment
 
     @UiThread
     @Override
-    public void onLoadSuccess(Response response) {
+    public void onLoadSuccess(Response response, File pdfFile) {
         showPdf(pdfFile);
     }
 

@@ -22,6 +22,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 import hugo.weaving.DebugLog;
 import okhttp3.Call;
@@ -35,23 +37,18 @@ public class UrlLoaderFragment extends Fragment {
 
     private static final String kInputUri = "input_url";
 
-    private static final String kOutputFile = "kOutputFile";
-
     private static final int MAX = 10_000;
 
     Uri inputUri;
-
-    File outputFile;
 
     FragmentLoadingBinding binding;
 
     ResultListener resultListener;
 
-    public static UrlLoaderFragment newInstance(Uri inputUri, File outputFile) {
+    public static UrlLoaderFragment newInstance(Uri inputUri) {
         UrlLoaderFragment fragment = new UrlLoaderFragment();
         Bundle args = new Bundle();
         args.putParcelable(kInputUri, inputUri);
-        args.putSerializable(kOutputFile, outputFile);
         fragment.setArguments(args);
         return fragment;
     }
@@ -72,7 +69,6 @@ public class UrlLoaderFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         inputUri = getArguments().getParcelable(kInputUri);
-        outputFile = (File) getArguments().getSerializable(kOutputFile);
     }
 
     @DebugLog
@@ -81,11 +77,30 @@ public class UrlLoaderFragment extends Fragment {
         binding = FragmentLoadingBinding.inflate(inflater, container, false);
         binding.progress.setMax(MAX);
 
+        File outputFile = new File(getContext().getCacheDir(), convertUriToFileName(inputUri));
+        if (!outputFile.exists()) {
+            download(outputFile);
+        } else {
+            resultListener.onLoadSuccess(null, outputFile);
+        }
+
+        return binding.getRoot();
+    }
+
+    private String convertUriToFileName(Uri uri) {
+        try {
+            return URLEncoder.encode(uri.toString(), "utf-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new AssertionError(e);
+        }
+    }
+
+    private void download(final File outputFile) {
         final OutputStream outputStream;
         try {
             outputStream = new BufferedOutputStream(new FileOutputStream(outputFile));
         } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
+            throw new AssertionError(e);
         }
 
         OkHttpClient client = new OkHttpClient.Builder()
@@ -138,13 +153,11 @@ public class UrlLoaderFragment extends Fragment {
                             @Override
                             public void run() {
                                 dismiss();
-                                resultListener.onLoadSuccess(response);
+                                resultListener.onLoadSuccess(response, outputFile);
                             }
                         });
                     }
                 });
-
-        return binding.getRoot();
     }
 
     public void show(FragmentManager fragmentManager, @IdRes int viewId) {
@@ -165,6 +178,6 @@ public class UrlLoaderFragment extends Fragment {
         void onLoadFailure(IOException exception);
 
         @UiThread
-        void onLoadSuccess(Response response);
+        void onLoadSuccess(Response response, File file);
     }
 }
