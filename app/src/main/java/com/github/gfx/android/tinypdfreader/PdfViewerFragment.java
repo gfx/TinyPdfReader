@@ -63,6 +63,18 @@ public class PdfViewerFragment extends Fragment {
         super.onDestroyView();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        hideSystemUI();
+    }
+
+    @Override
+    public void onPause() {
+        showSystemUI();
+        super.onPause();
+    }
+
     @DebugLog
     PdfRenderer createPdfRenderer() {
         File pdfFile = (File) getArguments().getSerializable(kPdfFile);
@@ -76,14 +88,58 @@ public class PdfViewerFragment extends Fragment {
 
     @DebugLog
     boolean handleTap(float x, float y) {
-        float thirdX = binding.viewPager.getWidth() / 3.0f;
+        float thirdX = binding.viewPager.getWidth() * 0.25f;
 
         if (x < thirdX) {
             return binding.viewPager.arrowScroll(View.FOCUS_LEFT);
-        } else if (x > 2 * thirdX) {
+        } else if (x > 3 * thirdX) {
             return binding.viewPager.arrowScroll(View.FOCUS_RIGHT);
         }
+        toggleSystemUi();
+        return true;
+    }
 
-        return false;
+    /**
+     * To hide system UI and dive into IMMERSIVE mode.
+     *
+     * <blockquote>
+     * If you're building a book reader, news reader, or a magazine, use the IMMERSIVE flag in conjunction with
+     * SYSTEM_UI_FLAG_FULLSCREEN and SYSTEM_UI_FLAG_HIDE_NAVIGATION. Because users may want to access the action bar and other
+     * UI controls somewhat frequently, but not be bothered with any UI elements while flipping through content, IMMERSIVE is a
+     * good option for this use case.
+     * </blockquote>
+     *
+     * @see <a href="http://developer.android.com/intl/ja/training/system-ui/immersive.html">Using Immersive Full-Screen
+     * Mode</a>
+     */
+    @DebugLog
+    private void hideSystemUI() {
+        binding.getRoot().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE);
+    }
+
+    @DebugLog
+    private void showSystemUI() {
+        binding.getRoot().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+    }
+
+    private void toggleSystemUi() {
+        if (checkFrag(binding.getRoot().getSystemUiVisibility(), View.SYSTEM_UI_FLAG_IMMERSIVE)) {
+            showSystemUI();
+        } else {
+            hideSystemUI();
+        }
+    }
+
+    private boolean checkFrag(int vec, int flag) {
+        return (vec & flag) == flag;
     }
 }
