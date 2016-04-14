@@ -45,17 +45,16 @@ public class UrlLoaderFragment extends Fragment {
 
     ResultListener resultListener;
 
+    public UrlLoaderFragment() {
+        // Required empty public constructor
+    }
+
     public static UrlLoaderFragment newInstance(Uri inputUri) {
         UrlLoaderFragment fragment = new UrlLoaderFragment();
         Bundle args = new Bundle();
         args.putParcelable(kInputUri, inputUri);
         fragment.setArguments(args);
         return fragment;
-    }
-
-
-    public UrlLoaderFragment() {
-        // Required empty public constructor
     }
 
     @Override

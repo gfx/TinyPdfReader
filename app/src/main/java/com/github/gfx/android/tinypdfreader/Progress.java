@@ -19,6 +19,11 @@ public final class Progress {
         return new ProgressInterceptor(progressListener);
     }
 
+    public interface ProgressListener {
+
+        void update(long bytesRead, long contentLength, boolean done);
+    }
+
     private static class ProgressInterceptor implements Interceptor {
 
         final ProgressListener progressListener;
@@ -83,10 +88,5 @@ public final class Progress {
                 }
             };
         }
-    }
-
-    public interface ProgressListener {
-
-        void update(long bytesRead, long contentLength, boolean done);
     }
 }
