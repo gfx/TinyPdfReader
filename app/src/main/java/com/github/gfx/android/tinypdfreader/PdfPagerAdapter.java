@@ -105,10 +105,9 @@ public class PdfPagerAdapter extends PagerAdapter {
 
         @Override
         protected Bitmap doInBackground(Integer... params) {
-            final long startTime = System.currentTimeMillis();
+            long startTime = System.currentTimeMillis();
 
             Bitmap bitmap = null;
-
             for (int i = 0; i < params.length; i++) {
                 int position = params[i];
                 try (PdfRenderer.Page page = pdfRenderer.openPage(position)) {
@@ -123,8 +122,7 @@ public class PdfPagerAdapter extends PagerAdapter {
                     page.render(bitmap, rect, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
                 }
             }
-            Log.d(TAG,
-                    "bitmap for " + Arrays.toString(params) + " loaded in " + (System.currentTimeMillis() - startTime) + "ms");
+            Log.d(TAG, "pages " + Arrays.toString(params) + " loaded in " + (System.currentTimeMillis() - startTime) + "ms");
             return bitmap;
         }
 

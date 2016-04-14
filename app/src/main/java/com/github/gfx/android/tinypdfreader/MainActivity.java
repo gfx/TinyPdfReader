@@ -13,6 +13,9 @@ import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity implements UrlLoaderFragment.ResultListener {
 
+    static final Uri uri = Uri.parse("http://www.jssec.org/dl/android_securecoding.pdf");
+    //static final Uri uri = Uri.parse("https://github.com/googlesamples/android-PdfRendererBasic/raw/master/Application/src/main/assets/sample.pdf");
+
     private static final String TAG = MainActivity.class.getSimpleName();
 
     @Override
@@ -20,11 +23,10 @@ public class MainActivity extends AppCompatActivity implements UrlLoaderFragment
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Uri uri = Uri.parse("http://www.jssec.org/dl/android_securecoding.pdf");
-        //Uri uri = Uri.parse("https://github.com/googlesamples/android-PdfRendererBasic/raw/master/Application/src/main/assets/sample.pdf");
-
-        UrlLoaderFragment.newInstance(uri)
-                .show(getSupportFragmentManager(),R.id.content);
+        if (savedInstanceState == null) {
+            UrlLoaderFragment.newInstance(uri)
+                    .show(getSupportFragmentManager(), R.id.content);
+        }
     }
 
     @UiThread
