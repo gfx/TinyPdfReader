@@ -53,11 +53,11 @@ public class PdfPagerAdapter extends PagerAdapter {
         photoView.setOnViewTapListener(onViewTapListener);
 
         if (portrait || position == 0) {
-            new LoadBitmapTask(pdfRenderer, photoView).execute(position);
+            new RenderBitmapTask(pdfRenderer, photoView).execute(position);
         } else {
             int pageLeft = position * 2 - 1;
             int pageRight = pageLeft + 1;
-            new LoadBitmapTask(pdfRenderer, photoView).execute(pageLeft, pageRight);
+            new RenderBitmapTask(pdfRenderer, photoView).execute(pageLeft, pageRight);
         }
         container.addView(photoView);
 

@@ -8,13 +8,13 @@ import android.widget.ImageView;
 
 import hugo.weaving.DebugLog;
 
-public class LoadBitmapTask extends AsyncTask<Integer, Void, Bitmap> {
+public class RenderBitmapTask extends AsyncTask<Integer, Void, Bitmap> {
 
     final PdfRenderer pdfRenderer;
 
     final ImageView targetView;
 
-    public LoadBitmapTask(PdfRenderer pdfRenderer, ImageView targetView) {
+    public RenderBitmapTask(PdfRenderer pdfRenderer, ImageView targetView) {
         this.pdfRenderer = pdfRenderer;
         this.targetView = targetView;
         targetView.setAlpha(0.0f);
@@ -49,7 +49,6 @@ public class LoadBitmapTask extends AsyncTask<Integer, Void, Bitmap> {
                 .setDuration(toFrame(20))
                 .start();
     }
-
 
     static int toFrame(int n) {
         return n * 1000 / 60;
