@@ -23,6 +23,7 @@ public class LoadBitmapTask extends AsyncTask<Integer, Void, Bitmap> {
     @DebugLog
     @Override
     protected Bitmap doInBackground(Integer... positions) {
+        assert positions.length == 1 || positions.length == 2;
         Bitmap bitmap = null;
         for (int i = 0; i < positions.length; i++) {
             int position = positions[i];

@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.neenbedankt.android-apt'
 apply plugin: 'com.jakewharton.hugo'
+apply plugin: 'com.github.gfx.android.powerassert'
 
 android {
     compileSdkVersion 23
