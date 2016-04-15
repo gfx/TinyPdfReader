@@ -46,7 +46,12 @@ public class LoadBitmapTask extends AsyncTask<Integer, Void, Bitmap> {
     protected void onPostExecute(Bitmap bitmap) {
         targetView.setImageBitmap(bitmap);
         targetView.animate().alpha(1.0f)
-                .setDuration(PdfPagerAdapter.toFrame(20))
+                .setDuration(toFrame(20))
                 .start();
+    }
+
+
+    static int toFrame(int n) {
+        return n * 1000 / 60;
     }
 }

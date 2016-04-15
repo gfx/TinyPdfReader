@@ -36,10 +36,6 @@ public class PdfPagerAdapter extends PagerAdapter {
         }
     }
 
-    static int toFrame(int n) {
-        return n * 1000 / 60;
-    }
-
     boolean isPortrait() {
         return context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
     }
