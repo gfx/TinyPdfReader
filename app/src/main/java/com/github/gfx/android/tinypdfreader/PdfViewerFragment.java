@@ -147,7 +147,7 @@ public class PdfViewerFragment extends Fragment {
 
     @DebugLog
     boolean handleTap(float x, float y) {
-        float thirdX = binding.viewPager.getWidth() * 0.25f;
+        float thirdX = binding.viewPager.getWidth() / 3.0f;
 
         if (x < thirdX) {
             return binding.viewPager.arrowScroll(View.FOCUS_LEFT);
