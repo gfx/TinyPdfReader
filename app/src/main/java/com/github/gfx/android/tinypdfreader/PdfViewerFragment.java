@@ -151,7 +151,7 @@ public class PdfViewerFragment extends Fragment {
 
         if (x < thirdX) {
             return binding.viewPager.arrowScroll(View.FOCUS_LEFT);
-        } else if (x > 3 * thirdX) {
+        } else if (x > 2 * thirdX) {
             return binding.viewPager.arrowScroll(View.FOCUS_RIGHT);
         }
         toggleSystemUi();
