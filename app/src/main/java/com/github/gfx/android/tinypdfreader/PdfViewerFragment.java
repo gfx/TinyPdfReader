@@ -29,8 +29,6 @@ public class PdfViewerFragment extends Fragment {
 
     private File pdfFile;
 
-    private int position;
-
     private PdfRenderer pdfRenderer;
 
     private FragmentPdfViewerBinding binding;
@@ -68,12 +66,17 @@ public class PdfViewerFragment extends Fragment {
         binding = FragmentPdfViewerBinding.inflate(inflater, container, false);
         binding.viewPager.setAdapter(adapter);
         binding.viewPager.setReversed(reversed);
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
 
         if (savedInstanceState != null) {
-            position = pageIndexToPosition(savedInstanceState.getInt(kPageIndex));
+            int position = pageIndexToPosition(savedInstanceState.getInt(kPageIndex));
+            binding.viewPager.setCurrentItem(position);
         }
-
-        return binding.getRoot();
     }
 
     @Override
@@ -87,7 +90,6 @@ public class PdfViewerFragment extends Fragment {
     public void onResume() {
         super.onResume();
         hideSystemUI();
-        binding.viewPager.setCurrentItem(position);
     }
 
     @DebugLog
