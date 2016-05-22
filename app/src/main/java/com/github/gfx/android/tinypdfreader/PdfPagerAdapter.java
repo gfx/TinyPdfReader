@@ -34,6 +34,7 @@ public class PdfPagerAdapter extends PagerAdapter {
         } else {
             this.count = (int) Math.ceil(pdfRenderer.getPageCount() / 2.0f);
         }
+        Log.d(TAG, "portrait=" + portrait);
     }
 
     boolean isPortrait() {
