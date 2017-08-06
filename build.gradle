@@ -5,10 +5,8 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.0'
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+        classpath 'com.android.tools.build:gradle:2.3.3'
         classpath 'com.jakewharton.hugo:hugo-plugin:1.2.1'
-        classpath 'com.github.gfx.android.powerassert:plugin:1.5.2'
     }
 }
 
